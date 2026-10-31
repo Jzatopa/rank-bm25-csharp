@@ -1,6 +1,8 @@
 // C# translation of dorianbrown/rank_bm25, pinned in docs/COMPATIBILITY.md.
 // Changed: managed arrays, typed API, argument validation and deterministic tie ordering.
 // Licensed under Apache-2.0; see LICENSE and NOTICE.
+// This fork is maintained through agentic AI under Jzatopa's direction.
+// Changes are validated against the Python reference through compatibility tests and CI.
 namespace RankBm25;
 
 /// <summary>Immutable tokenized-corpus index shared by the three BM25 variants.</summary>

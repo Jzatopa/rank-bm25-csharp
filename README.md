@@ -4,6 +4,10 @@ A small, dependency-free **C# / .NET 10** port of [Dorian Brown's rank_bm25](htt
 
 This is an independent fork, not an official upstream release. The original Python source and history are retained. [Original README](docs/UPSTREAM_README.md) · [Compatibility contract](docs/COMPATIBILITY.md) · [Apache-2.0 license](LICENSE)
 
+## Maintenance
+
+This fork is maintained through agentic AI, under Jzatopa's direction. AI agents contribute implementation, review, testing, and documentation; changes are validated against the original Python implementation through the compatibility suite and GitHub CI. This maintenance approach applies to this fork, not the upstream project.
+
 ## Why have this in C# instead of Python?
 
 The benefit is **integration and deployment**, not a new ranking algorithm:

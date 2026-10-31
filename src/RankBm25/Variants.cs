@@ -1,5 +1,7 @@
 // C# translations of the pinned rank_bm25 scoring formulas. Apache-2.0.
 // Changed: typed immutable API and explicit parameter validation; see NOTICE.
+// This fork is maintained through agentic AI under Jzatopa's direction.
+// Changes are validated against the Python reference through compatibility tests and CI.
 namespace RankBm25;
 
 public sealed class BM25Okapi : BM25
