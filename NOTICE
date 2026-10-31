@@ -1,0 +1,7 @@
+RankBm25.CSharp is an independent C# port of rank_bm25 by Dorian Brown.
+Original source: https://github.com/dorianbrown/rank_bm25
+Pinned source commit: 47aa3ddf8dc1ebeb7ef4e65f2b4536af44594099
+Original Python source and license are retained in this fork.
+C# translation, compatibility tests, examples and documentation added by Jzatopa, 2026.
+This project is not endorsed by the upstream authors.
+Licensed under the Apache License, Version 2.0; see LICENSE.

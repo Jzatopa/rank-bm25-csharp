@@ -1,0 +1,28 @@
+name: CSharp compatibility
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r scripts/requirements-test.txt
+      - run: python scripts/generate_fixtures.py
+      - run: git diff --exit-code -- tests/RankBm25.Compatibility/fixtures.json
+      - run: pytest -q
+      - run: dotnet run --project tests/RankBm25.Compatibility -c Release
+      - run: dotnet run --project samples/SearchDemo -c Release -- local search
+      - run: dotnet pack src/RankBm25 -c Release -o artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RankBm25-CSharp-package
+          path: artifacts/*.nupkg

@@ -105,3 +105,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Added for C# port and local development tooling
+**/bin/
+**/obj/
+artifacts/
