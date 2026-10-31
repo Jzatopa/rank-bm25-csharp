@@ -31,6 +31,7 @@ The **pinned source**, not a textbook or another BM25 package, defines scoring. 
 
 ## Deliberate adaptations
 
+- Null documents/tokens are rejected; the API accepts strings, not Python’s arbitrary hashable objects. Constructor positional arguments also differ: Python’s second argument is `tokenizer`, whereas C# uses `k1`; use `BM25.Tokenize` for tokenization.
 - Empty corpora and entirely tokenless corpora throw `ArgumentException` instead of upstream's divide-by-zero errors or NaN behavior.
 - Parameters require finite `k1 > 0`, `0 <= b <= 1`, and nonnegative finite epsilon/delta. Exotic upstream parameter combinations outside this domain are unsupported.
 - Batch IDs must be nonnegative and in range. Python's negative indexing is not supported.
@@ -41,6 +42,6 @@ The **pinned source**, not a textbook or another BM25 package, defines scoring. 
 
 ## Verification
 
-The seeded fixture generator executes upstream directly for 105 corpora × 3 variants × 5 queries = **1,575 cases**. It covers default-style and custom parameters, Unicode, case, empty string tokens, missing terms, repeated terms, negative IDF, single-document corpora, mixed empty documents, repeated/out-of-order batch IDs, and b=0/b=1 boundaries. Distinct finite score rankings are checked against NumPy; ties are tested against the documented C# policy. Additional executable checks cover validation, tokenizer delegates, caller mutation, empty batches, and top-N limits.
+The seeded fixture generator executes upstream directly for 105 corpora × 3 variants × 5 queries = **1,575 cases**. It covers actual constructor defaults and custom parameters, Unicode, case, empty string tokens, missing terms, repeated terms, negative IDF, single-document corpora, mixed empty documents, repeated/out-of-order batch IDs, and b=0/b=1 boundaries. Distinct finite score rankings are checked against NumPy; ties are tested against the documented C# policy. Additional executable checks cover validation, tokenizer delegates, caller mutation, empty batches, and top-N limits.
 
 This is bounded compatibility evidence, not a proof for every possible input or an exhaustive Unicode conformance claim. Regenerate fixtures when intentionally changing the pinned reference; review diffs before accepting a new baseline.

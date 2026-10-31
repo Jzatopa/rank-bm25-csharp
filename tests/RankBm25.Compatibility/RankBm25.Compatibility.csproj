@@ -2,6 +2,7 @@
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/RankBm25/RankBm25.csproj" />
+    <None Include="../../rank_bm25.py" Link="oracle-source.py" CopyToOutputDirectory="PreserveNewest" />
     <None Include="fixtures.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

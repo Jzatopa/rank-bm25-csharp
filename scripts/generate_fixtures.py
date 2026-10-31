@@ -39,8 +39,7 @@ with np.errstate(invalid='ignore', divide='ignore'):
             if name == 'okapi': params['epsilon'] = rng.choice([0.0, 0.25, 0.7])
             else: params['delta'] = rng.choice([0.0, 0.5, 1.0, 1.7])
             if ci == 0:
-                params = {'k1': 1.5, 'b': 0.75}
-                params['epsilon' if name == 'okapi' else 'delta'] = 0.25 if name == 'okapi' else (0.5 if name == 'l' else 1.0)
+                params = {}  # Exercise actual Python constructor defaults.
             index = cls(corpus, **params)
             ids = [len(corpus)-1, 0, len(corpus)-1]
             for qi, query in enumerate(queries):

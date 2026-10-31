@@ -17,7 +17,7 @@ public abstract class BM25
     public double AverageDocumentLength { get; }
     public IReadOnlyList<int> DocumentLengths { get; }
 
-    protected BM25(IEnumerable<IEnumerable<string>> corpus, double k1, double b)
+    private protected BM25(IEnumerable<IEnumerable<string>> corpus, double k1, double b)
     {
         ArgumentNullException.ThrowIfNull(corpus);
         if (!double.IsFinite(k1) || k1 <= 0) throw new ArgumentOutOfRangeException(nameof(k1));
@@ -38,13 +38,15 @@ public abstract class BM25
         for (int i = 0; i < docs.Length; i++)
         {
             var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+            var uniqueTokens = new List<string>();
             foreach (var token in docs[i])
             {
                 ArgumentNullException.ThrowIfNull(token);
+                if (!counts.ContainsKey(token)) uniqueTokens.Add(token);
                 counts[token] = counts.GetValueOrDefault(token) + 1;
             }
             frequencies[i] = counts;
-            foreach (var token in counts.Keys)
+            foreach (var token in uniqueTokens)
             {
                 if (!DocumentFrequencies.ContainsKey(token)) Vocabulary.Add(token);
                 DocumentFrequencies[token] = DocumentFrequencies.GetValueOrDefault(token) + 1;

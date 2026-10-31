@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Security.Cryptography;
 using RankBm25;
 
 int assertions = 0;
@@ -31,15 +32,22 @@ void Compare(double[] actual, JsonElement expected, string label)
 }
 
 using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "fixtures.json")));
-int cases = 0;
+Check(json.RootElement.GetProperty("sourceCommit").GetString() == "47aa3ddf8dc1ebeb7ef4e65f2b4536af44594099", "pinned oracle commit");
+var sourceHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "oracle-source.py")))).ToLowerInvariant();
+Check(sourceHash == json.RootElement.GetProperty("sourceSha256").GetString(), "oracle source hash");
+int cases = 0, rankingChecks = 0;
 foreach (var test in json.RootElement.GetProperty("cases").EnumerateArray())
 {
     var corpus = test.GetProperty("corpus").Deserialize<string[][]>()!;
     var query = test.GetProperty("query").Deserialize<string[]>()!;
     var p = test.GetProperty("parameters");
-    double k1 = p.GetProperty("k1").GetDouble(), b = p.GetProperty("b").GetDouble();
+    bool defaults = !p.EnumerateObject().Any();
+    double k1 = defaults ? 1.5 : p.GetProperty("k1").GetDouble(), b = defaults ? 0.75 : p.GetProperty("b").GetDouble();
     BM25 index = test.GetProperty("variant").GetString() switch
     {
+        "okapi" when defaults => new BM25Okapi(corpus),
+        "l" when defaults => new BM25L(corpus),
+        "plus" when defaults => new BM25Plus(corpus),
         "okapi" => new BM25Okapi(corpus, k1, b, p.GetProperty("epsilon").GetDouble()),
         "l" => new BM25L(corpus, k1, b, p.GetProperty("delta").GetDouble()),
         _ => new BM25Plus(corpus, k1, b, p.GetProperty("delta").GetDouble())
@@ -48,12 +56,17 @@ foreach (var test in json.RootElement.GetProperty("cases").EnumerateArray())
     Compare(index.GetScores(query), test.GetProperty("scores"), name);
     Compare(index.GetBatchScores(query, test.GetProperty("ids").Deserialize<int[]>()!), test.GetProperty("batch"), name + " batch");
     if (test.GetProperty("top").ValueKind == JsonValueKind.Array)
+    {
+        rankingChecks++;
         Check(index.GetTopN(query, Enumerable.Range(0, corpus.Length).ToArray(), corpus.Length)
             .SequenceEqual(test.GetProperty("top").Deserialize<int[]>()!), name + " order");
+    }
     Check(index.CorpusSize == corpus.Length, name + " corpus size");
     Check(index.DocumentLengths.SequenceEqual(corpus.Select(x => x.Length)), name + " lengths");
     cases++;
 }
+
+Check(cases == 1575, "complete fixture count");
 
 string[][] docs = [["cat"], ["dog"], ["bird"]];
 var bm = new BM25Okapi(docs);
@@ -77,4 +90,8 @@ var snapshot = new BM25Plus(source);
 var before = snapshot.GetScores(new[] {"cat"});
 source[0][0] = "dog";
 Check(snapshot.GetScores(new[] {"cat"}).SequenceEqual(before), "caller mutation cannot change index");
-Console.WriteLine($"PASS: {cases} Python differential cases; {assertions} assertions including API edge cases.");
+Throws<ArgumentNullException>(() => new BM25Okapi(null!));
+Throws<ArgumentNullException>(() => new BM25Okapi(new string[][] { null! }));
+Throws<ArgumentNullException>(() => new BM25Okapi(new[] { new string[] { null! } }));
+Throws<ArgumentNullException>(() => bm.GetScores(new string[] { null! }));
+Console.WriteLine($"PASS: {cases} Python differential cases; {assertions} assertions including API edge cases; {rankingChecks} distinct-finite ranking comparisons.");
